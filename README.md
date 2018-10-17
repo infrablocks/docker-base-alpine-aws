@@ -1,1 +1,1 @@
-# Docker Base Image - Alpine AWS S3 Config
+# Docker Base Image - Alpine AWS

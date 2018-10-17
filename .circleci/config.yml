@@ -1,7 +1,7 @@
 version: 2
 jobs:
   prerelease:
-    working_directory: ~/docker-base-alpine-aws-s3-config
+    working_directory: ~/docker-base-alpine-aws
     docker:
     - image: docker:18.06.1-ce-git
     steps:
@@ -14,7 +14,7 @@ jobs:
     - run: ./scripts/ci/common/configure-git.sh
     - run: ./scripts/ci/steps/prerelease.sh
   release:
-    working_directory: ~/docker-base-alpine-aws-s3-config
+    working_directory: ~/docker-base-alpine-aws
     docker:
     - image: docker:18.06.1-ce-git
     steps:
