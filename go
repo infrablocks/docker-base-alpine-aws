@@ -18,7 +18,7 @@ run_rake() {
 
     if [[ "$skip_checks" = "no" ]]; then
         echo "Checking for system dependencies."
-        local ruby_version="$(cat "$project_dir"/.ruby-version)"
+        local ruby_version="$(cat "$project_dir"/.ruby-version | cut -c1-3)"
         if ! type ruby >/dev/null 2>&1 || ! ruby -v | grep -q "$ruby_version"; then
             echo "This codebase requires Ruby $ruby_version."
             missing_dependency="yes"
