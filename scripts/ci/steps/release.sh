@@ -14,5 +14,6 @@ cd "$PROJECT_DIR"
 git crypt unlock
 git pull
 
-./go version:bump[minor]
+./go version:release
+
 ./go image:publish
