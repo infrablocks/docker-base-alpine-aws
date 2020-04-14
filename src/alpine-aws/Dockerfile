@@ -1,7 +1,7 @@
-FROM alpine:3.8
+FROM alpine:3.11
 
-ENV AWS_CLI_VERSION=1.16.1
-ENV AWS_S3CMD_VERSION=2.0.2
+ENV AWS_CLI_VERSION=1.18.39
+ENV AWS_S3CMD_VERSION=2.1.0
 
 RUN apk -v --update add \
       py-pip \
