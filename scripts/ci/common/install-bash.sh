@@ -5,5 +5,4 @@ set -e
 set -o pipefail
 
 apk --update add \
-    bash \
-    ncurses
+    bash
