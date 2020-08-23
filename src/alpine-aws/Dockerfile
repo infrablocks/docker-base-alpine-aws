@@ -7,6 +7,9 @@ RUN apk -v --update add \
       py-pip \
       python3 \
       && \
-    pip install --upgrade awscli==${AWS_CLI_VERSION} s3cmd==${AWS_S3CMD_VERSION} && \
+    pip install --upgrade \
+      awscli==${AWS_CLI_VERSION} \
+      s3cmd==${AWS_S3CMD_VERSION} \
+      && \
     apk -v --purge del py-pip && \
     rm /var/cache/apk/*
