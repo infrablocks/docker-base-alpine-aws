@@ -1,13 +1,16 @@
-require 'git'
-require 'yaml'
-require 'semantic'
 require 'rake_docker'
 require 'rake_circle_ci'
 require 'rake_github'
 require 'rake_ssh'
 require 'rake_terraform'
+require 'yaml'
+require 'git'
+require 'semantic'
+require 'rspec/core/rake_task'
 
 require_relative 'lib/version'
+
+task :default => [:'test:integration']
 
 def repo
   Git.open('.')
@@ -64,6 +67,7 @@ end
 
 namespace :pipeline do
   task :prepare => [
+      :'circle_ci:project:follow',
       :'circle_ci:env_vars:ensure',
       :'circle_ci:ssh_keys:ensure',
       :'github:deploy_keys:ensure'
@@ -88,6 +92,12 @@ namespace :image do
 
     t.tags = [latest_tag.to_s, 'latest']
   end
+end
+
+namespace :test do
+  RSpec::Core::RakeTask.new(:integration => [
+      'image:build'
+  ])
 end
 
 namespace :version do

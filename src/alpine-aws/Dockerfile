@@ -2,12 +2,11 @@ FROM alpine:3.12
 
 ENV AWS_CLI_VERSION=1.18.124
 
-RUN apk -v --update add \
-      py-pip \
-      python3 \
+RUN apk \
+      --verbose \
+      --no-cache \
+      add \
+      py3-pip \
       && \
-    pip install --upgrade \
-      awscli==${AWS_CLI_VERSION} \
-      && \
-    apk -v --purge del py-pip && \
-    rm /var/cache/apk/*
+    pip install \
+      awscli==${AWS_CLI_VERSION}
