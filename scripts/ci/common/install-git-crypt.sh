@@ -7,4 +7,6 @@ set -o pipefail
 apk \
     --update-cache \
     add \
-        git-crypt
+        git-crypt \
+        gnupg \
+        openssl
