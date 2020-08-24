@@ -1,6 +1,5 @@
 require 'bundler/setup'
 require 'docker'
-require 'aws-sdk'
 require 'serverspec'
 require 'shellwords'
 
