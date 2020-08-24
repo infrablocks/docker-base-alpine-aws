@@ -10,8 +10,6 @@ require 'rspec/core/rake_task'
 
 require_relative 'lib/version'
 
-task :default => [:'test:integration']
-
 def repo
   Git.open('.')
 end
@@ -21,6 +19,8 @@ def latest_tag
     Semantic::Version.new(tag.name)
   end.max
 end
+
+task :default => [:'test:integration']
 
 RakeSSH.define_key_tasks(
     namespace: :deploy_key,
