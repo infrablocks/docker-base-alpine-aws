@@ -2,13 +2,20 @@ require 'rake_docker'
 require 'rake_circle_ci'
 require 'rake_github'
 require 'rake_ssh'
+require 'rake_gpg'
 require 'rake_terraform'
+require 'securerandom'
 require 'yaml'
 require 'git'
+require 'os'
 require 'semantic'
 require 'rspec/core/rake_task'
 
 require_relative 'lib/version'
+
+Docker.options = {
+    read_timeout: 300
+}
 
 def repo
   Git.open('.')
@@ -20,13 +27,39 @@ def latest_tag
   end.max
 end
 
-task :default => [:'test:integration']
+def tmpdir
+  base = (ENV["TMPDIR"] || "/tmp")
+  OS.osx? ? "/private" + base : base
+end
 
-RakeSSH.define_key_tasks(
-    namespace: :deploy_key,
-    path: 'config/secrets/ci/',
-    comment: 'maintainers@infrablocks.io'
-)
+task :default => :'test:integration'
+
+namespace :encryption do
+  namespace :passphrase do
+    task :generate do
+      File.open('config/secrets/ci/encryption.passphrase', 'w') do |f|
+        f.write(SecureRandom.base64(36))
+      end
+    end
+  end
+end
+
+namespace :keys do
+  namespace :deploy do
+    RakeSSH.define_key_tasks(
+        path: 'config/secrets/ci/',
+        comment: 'maintainers@infrablocks.io')
+  end
+
+  namespace :gpg do
+    RakeGPG.define_generate_key_task(
+        output_directory: 'config/secrets/ci',
+        name_prefix: 'gpg',
+        owner_name: 'InfraBlocks Maintainers',
+        owner_email: 'maintainers@infrablocks.io',
+        owner_comment: 'docker-base-alpine-aws CI Key')
+  end
+end
 
 RakeCircleCI.define_project_tasks(
     namespace: :circle_ci,
@@ -41,6 +74,7 @@ RakeCircleCI.define_project_tasks(
           File.read('config/secrets/ci/encryption.passphrase')
               .chomp
   }
+  t.checkout_keys = []
   t.ssh_keys = [
       {
           hostname: "github.com",
@@ -69,6 +103,7 @@ namespace :pipeline do
   task :prepare => [
       :'circle_ci:project:follow',
       :'circle_ci:env_vars:ensure',
+      :'circle_ci:checkout_keys:ensure',
       :'circle_ci:ssh_keys:ensure',
       :'github:deploy_keys:ensure'
   ]
