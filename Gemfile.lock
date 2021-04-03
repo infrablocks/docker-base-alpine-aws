@@ -137,19 +137,19 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  docker-api (~> 1.34)
-  git (~> 1.6)
-  os (~> 1.1)
-  rake (~> 13.0)
-  rake_circle_ci (~> 0.9)
-  rake_docker (~> 2.11)
-  rake_github (~> 0.5)
-  rake_gpg (~> 0.12)
-  rake_ssh (~> 0.4)
-  rake_terraform (~> 1.11)
-  rspec (~> 3.9)
-  semantic (~> 1.6)
-  serverspec (~> 2.41, >= 2.41.5)
+  docker-api
+  git
+  os
+  rake
+  rake_circle_ci
+  rake_docker
+  rake_github
+  rake_gpg
+  rake_ssh
+  rake_terraform
+  rspec
+  semantic
+  serverspec
 
 BUNDLED WITH
    2.1.4
