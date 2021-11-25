@@ -47,7 +47,7 @@ workflows:
       - test:
           filters:
             branches:
-              only: master
+              only: [master, /^dependabot.*/]
       - prerelease:
           requires:
           - test
