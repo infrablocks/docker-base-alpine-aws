@@ -96,7 +96,7 @@ end
 RakeGithub.define_repository_tasks(
   namespace: :github,
   repository: 'infrablocks/docker-base-alpine-aws'
-) do |t|
+) do |t, args|
   github_config =
     YAML.load_file('config/secrets/github/config.yaml')
 
@@ -107,6 +107,8 @@ RakeGithub.define_repository_tasks(
       public_key: File.read('config/secrets/ci/ssh.public')
     }
   ]
+  t.branch_name = args.branch_name
+  t.commit_message = args.commit_message
 end
 
 namespace :pipeline do
