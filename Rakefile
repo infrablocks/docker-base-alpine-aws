@@ -153,10 +153,10 @@ namespace :test do
     task fix: [:'rubocop:auto_correct']
   end
 
-  RSpec::Core::RakeTask.new(:integration => [
-    'image:build',
-  ]) do |t|
-    t.rspec_opts = ["--format", "documentation"]
+  RSpec::Core::RakeTask.new(integration: [
+                              'image:build'
+                            ]) do |t|
+    t.rspec_opts = ['--format', 'documentation']
   end
 end
 
