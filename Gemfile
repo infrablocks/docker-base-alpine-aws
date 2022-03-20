@@ -4,6 +4,7 @@ source 'https://rubygems.org'
 
 gem 'docker-api'
 gem 'git'
+gem 'nokogiri'
 gem 'os'
 gem 'rake'
 gem 'rake_circle_ci'
