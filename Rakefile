@@ -150,13 +150,13 @@ namespace :test do
     task check: [:rubocop]
 
     desc 'Attempt to automatically fix issues with the test code'
-    task fix: [:'rubocop:auto_correct']
+    task fix: [:'rubocop:autocorrect_all']
   end
 
   RSpec::Core::RakeTask.new(integration: [
                               'image:build'
                             ]) do |t|
-    t.rspec_opts = ['--format', 'documentation']
+    t.rspec_opts = %w[--format documentation]
   end
 end
 

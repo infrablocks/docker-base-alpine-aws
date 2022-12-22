@@ -10,6 +10,6 @@ describe 'OS' do
 
   it 'is alpine 3.16' do
     expect(command('cat /etc/alpine-release').stdout)
-      .to(match(/3.16/))
+      .to(match(/3.17/))
   end
 end
