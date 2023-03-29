@@ -1,4 +1,4 @@
-FROM alpine:3.17.0
+FROM alpine:3.17.3
 
 ENV AWS_CLI_VERSION=1.18.124
 
