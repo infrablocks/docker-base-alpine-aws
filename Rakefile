@@ -209,6 +209,8 @@ namespace :image do
       'config/secrets/dockerhub/credentials.yaml'
     )
 
+    t.platform = 'linux/amd64'
+
     t.tags = [latest_tag.to_s, 'latest']
   end
 end
