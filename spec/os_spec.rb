@@ -8,8 +8,8 @@ describe 'OS' do
     set :docker_image, 'alpine-aws:latest'
   end
 
-  it 'is alpine 3.16' do
+  it 'is alpine 3.18' do
     expect(command('cat /etc/alpine-release').stdout)
-      .to(match(/3.17/))
+      .to(match(/3.18/))
   end
 end
