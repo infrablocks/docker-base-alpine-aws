@@ -1,0 +1,68 @@
+name: Pull Request
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install tools
+        uses: infrablocks/github-actions/asdf_install@v1
+      - name: Check
+        run: ./go test:code:check
+      - name: Notify Slack
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: ./go "slack:notify[${{ job.status }}]"
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install tools
+        uses: infrablocks/github-actions/asdf_install@v1
+      - name: Ensure docker-compose is available
+        # Pinned + checksum-verified: this runs as root on runners that later
+        # hold secrets; the checksum is from the release's own .sha256 asset.
+        run: |
+          if ! command -v docker-compose >/dev/null 2>&1; then
+            sudo curl -fsSL \
+              "https://github.com/docker/compose/releases/download/v5.3.1/docker-compose-linux-x86_64" \
+              -o /usr/local/bin/docker-compose
+            echo "f9ebc6ebdb19d769b793c245a736caaeb198c62587f13b25c660c13b4987f959  /usr/local/bin/docker-compose" \
+              | sha256sum -c -
+            sudo chmod +x /usr/local/bin/docker-compose
+          fi
+      - name: Test
+        run: ./go test:integration
+      - name: Notify Slack
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: ./go "slack:notify[${{ job.status }}]"
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+  merge-pull-request:
+    needs: [check, test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.actor == 'dependabot[bot]'
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Merge pull request
+        run: gh pr merge --merge "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
