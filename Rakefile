@@ -275,14 +275,22 @@ namespace :version do
   task :bump, [:type] do |_, args|
     next_tag = latest_tag.send("#{args.type}!")
     repo.add_tag(next_tag.to_s)
-    repo.push('origin', 'main', tags: true)
+    repo.push('origin', "refs/tags/#{next_tag}")
   end
 
   desc 'Release gem'
   task :release do
+    # Only release the newest candidate, and only from the commit it tags:
+    # approving an older run would otherwise give its commit a newer version.
+    tagged = repo.object("#{latest_tag}^{commit}").sha
+    unless tagged == repo.object('HEAD').sha
+      raise "Latest tag #{latest_tag} is not on HEAD: approve the release " \
+            'of the run that created it instead'
+    end
+
     next_tag = latest_tag.release!
     repo.add_tag(next_tag.to_s)
-    repo.push('origin', 'main', tags: true)
+    repo.push('origin', "refs/tags/#{next_tag}")
   end
 end
 
