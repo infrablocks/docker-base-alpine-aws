@@ -4,7 +4,7 @@ set -euo pipefail
 
 # The environment gate is fail-open: on first reference GitHub auto-creates
 # the 'release' environment with NO protection rules, so if pipeline:prepare
-# never ran the gate job proceeds unapproved. Fail closed instead of
+# never ran the release job proceeds unapproved. Fail closed instead of
 # releasing ungated — a missing approver stops the release rather than
 # silently waving it through. Count required_reviewers specifically: a
 # wait_timer or branch policy is also a protection rule but gates nothing on

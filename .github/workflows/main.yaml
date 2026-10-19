@@ -48,10 +48,8 @@ jobs:
     needs: [check, test]
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Job-level group (here and on release): a run awaiting release approval
-    # holds the slot, and a workflow-level group would freeze all main CI for
-    # the approval window. queue: max keeps every queued run; the default
-    # cancels all but the newest.
+    # Serialise tag computation between close-together merges. Job-level and
+    # queue: max: every queued run is kept, none is cancelled
     concurrency:
       group: main-tags
       cancel-in-progress: false
@@ -88,35 +86,32 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
-  release-gate:
-    # No concurrency group here — a pending approval must not hold the publish slot
+  release:
     needs: [prerelease]
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    environment: release
-    steps:
-      - name: Assert release environment is protected
-        run: ./scripts/ci/common/assert-release-environment-protected.sh
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Release approved
-        run: "true"
-
-  release:
-    needs: [release-gate]
-    runs-on: ubuntu-latest
     timeout-minutes: 30
+    environment: release
+    # Own group: a run waiting for approval holds this slot for the whole
+    # wait, so it must not share prerelease's group or later merges queue
+    # behind it
     concurrency:
-      group: main-tags
+      group: release
       cancel-in-progress: false
       queue: max
     permissions:
       contents: write
+      actions: read # the protection assertion reads the environment
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
+          # Release the commit this run tested and the approver saw, not
+          # whatever main is by approval time
+          ref: ${{ github.sha }}
           fetch-depth: 0
+      - name: Assert release environment is protected
+        run: ./scripts/ci/common/assert-release-environment-protected.sh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Install tools
         uses: infrablocks/github-actions/asdf_install@v1
       - name: Install secrets tools
@@ -127,10 +122,6 @@ jobs:
           ENCRYPTION_PASSPHRASE: ${{ secrets.ENCRYPTION_PASSPHRASE }}
       - name: Set CI git author
         run: ./go repository:set_ci_author
-      - name: Pull latest main
-        # Publishes main as of approval time, not the SHA that triggered the
-        # run; --ff-only so a non-fast-forward fails loudly
-        run: git pull --ff-only
       - name: Release
         run: ./go version:release
       - name: Publish release image
